@@ -8,7 +8,7 @@ enum class TextCommandParameterType(val pattern: String, val humanReadable: Stri
 
 data class TextCommandParameter(
     val type: TextCommandParameterType,
-    val description: String? = null,
+    val description: String? = "No description provided",
     val allowMultiple: Boolean = false,
     val amountLimit: Int = Int.MAX_VALUE
 )

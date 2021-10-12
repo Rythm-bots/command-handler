@@ -29,7 +29,7 @@ abstract class TextCommand<Parameters>(
                 param.value.amountLimit
 
             val range = if (param.value.allowMultiple)
-                "— (1 - $amountLimit)"
+                "(min: 1; max: $amountLimit)"
             else
                 ""
 
