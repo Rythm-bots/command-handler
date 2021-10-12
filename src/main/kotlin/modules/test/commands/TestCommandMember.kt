@@ -14,8 +14,11 @@ data class TestCommandMemberParameters(val members: List<Member?>, val note: Str
 class TestCommandMember : TextCommand<TestCommandMemberParameters>(
     "tags",
     linkedMapOf(
-        "members" to TextCommandParameter(TextCommandParameterType.USER, true),
-        "note" to TextCommandParameter(TextCommandParameterType.STRING)
+        "members" to TextCommandParameter(TextCommandParameterType.USER, "The members you'd like the tags of", true),
+        "note" to TextCommandParameter(
+            TextCommandParameterType.STRING,
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        )
     ),
     hashMapOf()
 ) {

@@ -1,5 +1,8 @@
 package commands
 
+import classes.CheckFailedException
+import classes.InvalidParametersException
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
 
 abstract class TextCommand<Parameters>(
@@ -7,11 +10,38 @@ abstract class TextCommand<Parameters>(
     private val parameters: LinkedHashMap<String, TextCommandParameter>,
     private val subCommands: HashMap<String, TextCommand<*>>
 ) {
+    abstract fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): Parameters
+
     abstract fun check(context: TextCommandContext<Parameters>): Boolean
 
     abstract fun handler(context: TextCommandContext<Parameters>)
 
-    abstract fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): Parameters
+    fun generateEmbed(color: Int): EmbedBuilder {
+        val embedBuilder = EmbedBuilder()
+
+        embedBuilder.setTitle(name)
+        embedBuilder.setColor(color)
+
+        parameters.forEach { param ->
+            val amountLimit = if (param.value.amountLimit == Int.MAX_VALUE)
+                "∞"
+            else
+                param.value.amountLimit
+
+            val range = if (param.value.allowMultiple)
+                "— (1 - $amountLimit)"
+            else
+                ""
+
+            embedBuilder.addField(
+                "${param.key} $range",
+                "${param.value.type.humanReadable} — ${param.value.description}",
+                true
+            )
+        }
+
+        return embedBuilder
+    }
 
     private fun buildValidationRegex(): String {
         val groups = parameters.map { (name, value) ->
@@ -82,7 +112,7 @@ abstract class TextCommand<Parameters>(
 
     fun execute(rightHandSide: String, message: Message) {
         val parameters = gatherParameters(rightHandSide)
-            ?: return /* TODO: reporting to the user the params are invalid */
+            ?: throw InvalidParametersException()
         val constructedParameters = parameterBuilder(message, parameters)
         val context = TextCommandContext(
             message.textChannel,
@@ -93,7 +123,7 @@ abstract class TextCommand<Parameters>(
         )
 
         if (!check(context))
-            return
+            throw CheckFailedException()
 
         val rightHandSideSplit = rightHandSide.split(Regex("\\s+"), limit = 2)
         if (rightHandSideSplit.isNotEmpty())

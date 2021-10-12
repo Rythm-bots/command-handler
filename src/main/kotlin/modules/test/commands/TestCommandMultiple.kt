@@ -16,7 +16,7 @@ data class TestCommandMultipleParameters(
 class TestCommandMultiple : TextCommand<TestCommandMultipleParameters>(
     "test-multiple",
     linkedMapOf(
-        "numbers" to TextCommandParameter(TextCommandParameterType.INT, true),
+        "numbers" to TextCommandParameter(TextCommandParameterType.INT, null, true),
         "text" to TextCommandParameter(TextCommandParameterType.STRING)
     ),
     hashMapOf()

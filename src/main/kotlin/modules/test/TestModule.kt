@@ -2,10 +2,7 @@ package modules.test
 
 import commands.TextCommandRegistry
 import modules.Module
-import modules.test.commands.TestCommand
-import modules.test.commands.TestCommandMember
-import modules.test.commands.TestCommandMultiple
-import modules.test.commands.TestCommandNoParams
+import modules.test.commands.*
 
 class TestModule(registry: TextCommandRegistry) : Module("automod", registry) {
     init {
@@ -13,5 +10,6 @@ class TestModule(registry: TextCommandRegistry) : Module("automod", registry) {
         this.registerCommand(TestCommandMultiple())
         this.registerCommand(TestCommandMember())
         this.registerCommand(TestCommandNoParams())
+        this.registerCommand(TestCommandError())
     }
 }
