@@ -2,14 +2,16 @@ package commands
 
 import net.dv8tion.jda.api.entities.Message
 
-abstract class TextCommand(
+abstract class TextCommand<Parameters>(
     val name: String,
-    private val parameters: HashMap<String, TextCommandParameter>,
-    private val subCommands: HashMap<String, TextCommand>
+    private val parameters: LinkedHashMap<String, TextCommandParameter>,
+    private val subCommands: HashMap<String, TextCommand<*>>
 ) {
-    abstract fun check(context: TextCommandContext): Boolean
+    abstract fun check(context: TextCommandContext<Parameters>): Boolean
 
-    abstract fun handler(context: TextCommandContext)
+    abstract fun handler(context: TextCommandContext<Parameters>)
+
+    abstract fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): Parameters
 
     private fun buildValidationRegex(): String {
         val groups = parameters.map { (name, value) ->
@@ -31,9 +33,11 @@ abstract class TextCommand(
         type: TextCommandParameterType,
         value: String
     ): Any {
-        var typedValue: Any = value
-        if (type === TextCommandParameterType.INT)
-            typedValue = value.toLong()
+        val typedValue = when (type) {
+            TextCommandParameterType.INT,
+            TextCommandParameterType.USER -> value.toLong()
+            TextCommandParameterType.STRING -> value
+        }
 
         return typedValue
     }
@@ -53,12 +57,12 @@ abstract class TextCommand(
             val value = groups[name]!!.value
 
             if (multiple) {
-                val patternInstance = "(${type.pattern})".toRegex()
+                val patternInstance = type.pattern.toRegex()
 
                 val values = arrayListOf<Any>()
 
                 patternInstance.findAll(value).forEach { match ->
-                    val group = match.groups[0]
+                    val group = match.groups[1]
 
                     values.add(
                         applyTypeToParameter(type, group!!.value)
@@ -79,11 +83,13 @@ abstract class TextCommand(
     fun execute(rightHandSide: String, message: Message) {
         val parameters = gatherParameters(rightHandSide)
             ?: return /* TODO: reporting to the user the params are invalid */
+        val constructedParameters = parameterBuilder(message, parameters)
         val context = TextCommandContext(
             message.textChannel,
+            message.jda,
             message.member!!,
             message.contentRaw,
-            parameters
+            constructedParameters
         )
 
         if (!check(context))

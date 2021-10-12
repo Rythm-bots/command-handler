@@ -1,10 +1,9 @@
 package commands
 
 enum class TextCommandParameterType(val pattern: String) {
-    STRING(""".+"""),
-    INT("""\d+"""),
-    USER("""(?:<@!?)?(\d+)>?"""),
-    MEMBER("""(?:<@!?)?(\d+)>?""")
+    STRING("""(.+)"""),
+    INT("""(\d+)"""),
+    USER("""(?:<@!?)?(\d+)>?""")
 }
 
 data class TextCommandParameter(

@@ -1,6 +1,8 @@
 package utils
 
+import com.sun.jdi.InvalidTypeException
 import net.dv8tion.jda.api.MessageBuilder
+import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.requests.restaction.MessageAction
 
@@ -20,6 +22,15 @@ fun MessageChannel.sendSafe(messageBuilder: MessageBuilder): MessageAction {
     return this.sendMessage(message)
 }
 
+fun MessageChannel.sendSafe(content: String): MessageAction {
+    val message = MessageBuilder()
+        .setContent(content)
+        .setAllowedMentions(emptyList())
+        .build()
+
+    return this.sendMessage(message)
+}
+
 fun Long.asDiscordTimestamp(style: DiscordTimestampStyle = DiscordTimestampStyle.ShortDateTime): String {
     return "<t:${this}:${style.token}>"
 }
@@ -29,4 +40,11 @@ fun String.truncateIfNecessary(maxLength: Int = 800): String {
         return "${this.slice(IntRange(0, maxLength))}... (+${this.length - maxLength})"
 
     return this
+}
+
+inline fun <reified T> Any.promiseToBeOfType(): T {
+    if (this is T)
+        return this
+
+    throw InvalidTypeException("Any was promised to be type T but it was not.")
 }

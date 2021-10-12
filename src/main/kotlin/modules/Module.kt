@@ -23,7 +23,7 @@ open class Module(name: String, private val registry: TextCommandRegistry) {
         )
     }
 
-    protected fun registerCommand(textCommand: TextCommand) {
+    protected fun registerCommand(textCommand: TextCommand<*>) {
         if (disabled)
             return
 
