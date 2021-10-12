@@ -12,19 +12,30 @@ abstract class TextCommand(
     abstract fun handler(context: TextCommandContext)
 
     private fun buildValidationRegex(): String {
-        val tokens = arrayListOf<String>()
+        val groups = parameters.map { (name, value) ->
+            val type = value.type
+            val multiple = value.allowMultiple
 
-        parameters.forEach { (name, value) ->
-            tokens.add(
-                when(value) {
-                    TextCommandParameter.INT -> "(?<$name>\\d+)"
-                    TextCommandParameter.STRING -> "(?<$name>.+)"
-                    else -> ""
-                }
-            )
+            val pattern = type.pattern
+
+            if (!multiple)
+                return@map "(?<$name>$pattern)"
+
+            return@map """(?<$name>(?:$pattern|\s)+)"""
         }
 
-        return tokens.joinToString(" ", "^", "$")
+        return groups.joinToString("\\s+", "^", "$")
+    }
+
+    private fun applyTypeToParameter(
+        type: TextCommandParameterType,
+        value: String
+    ): Any {
+        var typedValue: Any = value
+        if (type === TextCommandParameterType.INT)
+            typedValue = value.toLong()
+
+        return typedValue
     }
 
     private fun gatherParameters(rightHandSide: String): HashMap<String, Any>? {
@@ -36,13 +47,29 @@ abstract class TextCommand(
         val groups = pattern.find(rightHandSide)!!.groups
 
         val hashMap = hashMapOf<String, Any>()
-        parameters.forEach { (name, type) ->
+        parameters.forEach { (name, param) ->
+            val type = param.type
+            val multiple = param.allowMultiple
             val value = groups[name]!!.value
 
-            var typedValue: Any = value
-            if (type === TextCommandParameter.INT)
-                typedValue = value.toLong()
+            if (multiple) {
+                val patternInstance = "(${type.pattern})".toRegex()
 
+                val values = arrayListOf<Any>()
+
+                patternInstance.findAll(value).forEach { match ->
+                    val group = match.groups[0]
+
+                    values.add(
+                        applyTypeToParameter(type, group!!.value)
+                    )
+                }
+
+                hashMap[name] = values
+                return@forEach
+            }
+
+            val typedValue = applyTypeToParameter(type, value)
             hashMap[name] = typedValue
         }
 

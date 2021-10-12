@@ -7,12 +7,11 @@ import commands.TextCommandParameterType
 import net.dv8tion.jda.api.MessageBuilder
 import utils.sendSafe
 
-class TestCommand : TextCommand(
-    "test",
+class TestCommandMultiple : TextCommand(
+    "test-multiple",
     hashMapOf(
-        "number" to TextCommandParameter(TextCommandParameterType.INT),
-        "text" to TextCommandParameter(TextCommandParameterType.STRING),
-        "anotherNumber" to TextCommandParameter(TextCommandParameterType.INT)
+        "number" to TextCommandParameter(TextCommandParameterType.INT, true),
+        "text" to TextCommandParameter(TextCommandParameterType.STRING)
     ),
     hashMapOf()
 ) {
