@@ -1,13 +1,13 @@
 package modules
 
-import commands.TextCommand
-import commands.TextCommandRegistry
+import commands.text.TextCommand
+import commands.text.Registry
 import events.classes.EventHandler
 import events.classes.Registration
 import net.dv8tion.jda.api.JDA
 import utils.Environment
 
-open class Module(name: String, private val registry: TextCommandRegistry) {
+open class Module(name: String, private val registry: Registry) {
     private val disabled: Boolean = !Environment.ENABLED_MODULES.contains(name)
 
     protected fun registerEventsIfEnabled(

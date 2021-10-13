@@ -1,11 +1,8 @@
-package commands
+package commands.text
 
 import classes.CommandTriggerConflictException
-import net.dv8tion.jda.api.entities.Message
-import utils.Environment
-import utils.promiseToBeOfType
 
-open class TextCommandRegistry {
+open class Registry {
     protected val commands = arrayListOf<TextCommand<*>>()
 
     /**

@@ -1,6 +1,6 @@
 package modules.test.commands
 
-import commands.*
+import commands.text.*
 import net.dv8tion.jda.api.entities.Message
 import utils.sendSafe
 
@@ -22,7 +22,7 @@ class SubcommandIsEvenOrOdd : TextCommand<IsEvenOrOddParameters>(
         return true
     }
 
-    override fun handler(context: TextCommandContext<IsEvenOrOddParameters>) {
+    override fun handler(context: Context<IsEvenOrOddParameters>) {
         val number = context.parameters.number
         val isEven = number % 2 == 0L
 
@@ -56,7 +56,7 @@ class SubcommandDivide : TextCommand<DivideParameters>(
         return true
     }
 
-    override fun handler(context: TextCommandContext<DivideParameters>) {
+    override fun handler(context: Context<DivideParameters>) {
         val number = context.parameters.number
         val otherNumber = context.parameters.otherNumber
 
@@ -87,7 +87,7 @@ class TestCommandWithSubcommands : TextCommand<Unit>(
         return true
     }
 
-    override fun handler(context: TextCommandContext<Unit>) {
+    override fun handler(context: Context<Unit>) {
         context.channel.sendSafe("This is the base command speaking.").queue()
     }
 }

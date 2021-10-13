@@ -1,10 +1,10 @@
 package modules.test
 
-import commands.TextCommandRegistry
+import commands.text.Registry
 import modules.Module
 import modules.test.commands.*
 
-class TestModule(registry: TextCommandRegistry) : Module("test", registry) {
+class TestModule(registry: Registry) : Module("test", registry) {
     init {
         this.registerCommands(
             TestCommand(),

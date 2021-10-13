@@ -1,5 +1,5 @@
-import commands.CommandsEventsHandler
-import commands.TextCommandRegistry
+import commands.text.CommandsEventsHandler
+import commands.text.Registry
 import events.classes.Registration
 import events.genericHandlers.ReadyEventHandler
 import net.dv8tion.jda.api.JDABuilder
@@ -20,7 +20,7 @@ fun main() {
 
     val builtJDA = jdaBuilder.build()
 
-    val commandsRegistry = TextCommandRegistry()
+    val commandsRegistry = Registry()
 
     // No need to worry about disabling or enabling handlers here,
     // handlers are by design aware of whether they're enabled or not.

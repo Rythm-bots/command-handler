@@ -1,6 +1,6 @@
 package modules.test.commands
 
-import commands.*
+import commands.text.*
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import utils.promiseToBeOfType
@@ -31,7 +31,7 @@ class TestCommandMember : TextCommand<TestCommandMemberParameters>(
         return true
     }
 
-    override fun handler(context: TextCommandContext<TestCommandMemberParameters>) {
+    override fun handler(context: Context<TestCommandMemberParameters>) {
         val members = context.parameters.members.map { m -> m?.user?.asTag }
         val note = context.parameters.note
 

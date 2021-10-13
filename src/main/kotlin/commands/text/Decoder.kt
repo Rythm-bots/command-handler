@@ -1,4 +1,4 @@
-package commands
+package commands.text
 
 import net.dv8tion.jda.api.entities.Message
 import utils.Environment
@@ -13,7 +13,7 @@ import utils.Environment
  * @throws Exception any unhandled exception as described above.
  */
 fun tryDecodeAndExecute(
-    commandRegistry: TextCommandRegistry,
+    commandRegistry: Registry,
     onError: ((e: Exception, m: Message, command: TextCommand<*>) -> Boolean)?,
     message: Message
 ) {

@@ -1,4 +1,4 @@
-package commands
+package commands.text
 
 enum class TextCommandParameterType(val pattern: String, val humanReadable: String) {
     STRING("""(.+)""", "Text"),

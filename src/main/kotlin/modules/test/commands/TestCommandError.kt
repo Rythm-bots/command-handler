@@ -1,6 +1,6 @@
 package modules.test.commands
 
-import commands.*
+import commands.text.*
 import net.dv8tion.jda.api.entities.Message
 
 data class TestCommandErrorParameters(val type: Long)
@@ -21,7 +21,7 @@ class TestCommandError : TextCommand<TestCommandErrorParameters>(
         return true
     }
 
-    override fun handler(context: TextCommandContext<TestCommandErrorParameters>) {
+    override fun handler(context: Context<TestCommandErrorParameters>) {
         throw Exception("Test Error")
     }
 }

@@ -1,8 +1,8 @@
 package modules.test.commands
 
-import commands.PreParseContext
-import commands.TextCommand
-import commands.TextCommandContext
+import commands.text.PreParseContext
+import commands.text.TextCommand
+import commands.text.Context
 import net.dv8tion.jda.api.entities.Message
 import utils.sendSafe
 
@@ -17,7 +17,7 @@ class TestCommandMultiTrigger : TextCommand<Unit>(
         return true
     }
 
-    override fun handler(context: TextCommandContext<Unit>) {
+    override fun handler(context: Context<Unit>) {
         context.channel.sendSafe("Trigger used: ${context.triggerUsed}")
             .queue()
     }

@@ -1,4 +1,4 @@
-package commands
+package commands.text
 
 import classes.CheckFailedException
 import classes.InvalidParametersException
@@ -31,7 +31,7 @@ fun errorHandler(error: Exception, message: Message, command: TextCommand<*>): B
     return true
 }
 
-class CommandsEventsHandler(private val registry: TextCommandRegistry) : EventHandler("commands") {
+class CommandsEventsHandler(private val registry: Registry) : EventHandler("commands") {
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
         tryDecodeAndExecute(registry, ::errorHandler, event.message)
     }

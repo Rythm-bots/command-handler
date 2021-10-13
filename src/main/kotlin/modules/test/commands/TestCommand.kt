@@ -1,6 +1,6 @@
 package modules.test.commands
 
-import commands.*
+import commands.text.*
 import net.dv8tion.jda.api.entities.Message
 import utils.sendSafe
 
@@ -27,7 +27,7 @@ class TestCommand : TextCommand<TestCommandParameters>(
         return true
     }
 
-    override fun handler(context: TextCommandContext<TestCommandParameters>) {
+    override fun handler(context: Context<TestCommandParameters>) {
         val number = context.parameters.number
         val text = context.parameters.text
         val anotherNumber = context.parameters.anotherNumber

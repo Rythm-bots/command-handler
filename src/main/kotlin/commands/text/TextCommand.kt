@@ -1,4 +1,4 @@
-package commands
+package commands.text
 
 import classes.CheckFailedException
 import classes.InvalidParametersException
@@ -9,7 +9,7 @@ abstract class TextCommand<Parameters>(
     val triggers: ArrayList<String>,
     private val parameters: LinkedHashMap<String, TextCommandParameter> = linkedMapOf(),
     subCommands: ArrayList<TextCommand<*>> = arrayListOf()
-) : TextCommandRegistry() {
+) : Registry() {
     private val pattern = buildValidationRegex().toRegex()
 
     init {
@@ -22,7 +22,7 @@ abstract class TextCommand<Parameters>(
 
     abstract fun check(context: PreParseContext): Boolean
 
-    abstract fun handler(context: TextCommandContext<Parameters>)
+    abstract fun handler(context: Context<Parameters>)
 
     fun generateEmbed(color: Int): EmbedBuilder {
         val embedBuilder = EmbedBuilder()

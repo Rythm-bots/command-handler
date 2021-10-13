@@ -1,4 +1,4 @@
-package commands
+package commands.text
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Member
@@ -11,8 +11,8 @@ open class PreParseContext(
     val contentRaw: String,
     val triggerUsed: String
 ) {
-    fun <Parameters> constructTextCommandContext(parameters: Parameters): TextCommandContext<Parameters> {
-        return TextCommandContext(
+    fun <Parameters> constructTextCommandContext(parameters: Parameters): Context<Parameters> {
+        return Context(
             channel,
             jda,
             author,

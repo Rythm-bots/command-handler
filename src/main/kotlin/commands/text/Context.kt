@@ -1,10 +1,10 @@
-package commands
+package commands.text
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.TextChannel
 
-class TextCommandContext<Parameters>(
+class Context<Parameters>(
     channel: TextChannel,
     jda: JDA,
     author: Member,
