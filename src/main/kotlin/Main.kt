@@ -24,7 +24,7 @@ fun errorHandler(error: Exception, message: Message, command: TextCommand<*>): B
     if (error !is CheckFailedException && error !is InvalidParametersException)
     {
         channel.sendSafe("An error occurred whilst executing your command.").queue()
-        return true
+        return false
     }
 
     if (error is InvalidParametersException)
@@ -34,7 +34,7 @@ fun errorHandler(error: Exception, message: Message, command: TextCommand<*>): B
             .setEmbed(command.generateEmbed(0xe6435e).build())
 
         channel.sendSafe(messageBuilder).queue()
-        return true;
+        return true
     }
 
     channel.sendSafe(error.message!!).queue()

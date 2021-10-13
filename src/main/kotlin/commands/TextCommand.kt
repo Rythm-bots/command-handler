@@ -10,6 +10,8 @@ abstract class TextCommand<Parameters>(
     private val parameters: LinkedHashMap<String, TextCommandParameter>,
     private val subCommands: HashMap<String, TextCommand<*>>
 ) {
+    private val pattern = buildValidationRegex().toRegex()
+
     abstract fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): Parameters
 
     abstract fun check(context: TextCommandContext<Parameters>): Boolean
@@ -73,7 +75,7 @@ abstract class TextCommand<Parameters>(
     }
 
     private fun gatherParameters(rightHandSide: String): HashMap<String, Any>? {
-        val pattern = buildValidationRegex().toRegex()
+        println(pattern)
 
         if (!pattern.matches(rightHandSide))
             return null
