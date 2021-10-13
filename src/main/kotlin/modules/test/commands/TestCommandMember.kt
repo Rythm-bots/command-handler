@@ -12,7 +12,7 @@ import utils.sendSafe
 data class TestCommandMemberParameters(val members: List<Member?>, val note: String)
 
 class TestCommandMember : TextCommand<TestCommandMemberParameters>(
-    "tags",
+    arrayListOf("tags"),
     linkedMapOf(
         "members" to TextCommandParameter(TextCommandParameterType.USER, "The members you'd like the tags of", true),
         "note" to TextCommandParameter(

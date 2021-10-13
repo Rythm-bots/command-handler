@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.entities.Message
 data class TestCommandErrorParameters(val type: Long)
 
 class TestCommandError : TextCommand<TestCommandErrorParameters>(
-    "error",
+    arrayListOf("error"),
     linkedMapOf(
         "type" to TextCommandParameter(TextCommandParameterType.INT)
     ),

@@ -10,7 +10,7 @@ import utils.sendSafe
 data class TestCommandParameters(val number: Long, val text: String, val anotherNumber: Long)
 
 class TestCommand : TextCommand<TestCommandParameters>(
-    "test",
+    arrayListOf("test"),
     linkedMapOf(
         "number" to TextCommandParameter(TextCommandParameterType.INT),
         "text" to TextCommandParameter(TextCommandParameterType.STRING),

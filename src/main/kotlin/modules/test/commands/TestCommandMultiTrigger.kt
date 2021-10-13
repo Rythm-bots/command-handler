@@ -5,8 +5,8 @@ import commands.TextCommandContext
 import net.dv8tion.jda.api.entities.Message
 import utils.sendSafe
 
-class TestCommandNoParams : TextCommand<Unit>(
-    arrayListOf("no-params"),
+class TestCommandMultiTrigger : TextCommand<Unit>(
+    arrayListOf("trigger1", "trigger2", "trigger3"),
     linkedMapOf(),
     hashMapOf()
 ) {
@@ -19,6 +19,8 @@ class TestCommandNoParams : TextCommand<Unit>(
     }
 
     override fun handler(context: TextCommandContext<Unit>) {
-        context.channel.sendSafe("hi hi hello").queue()
+        context.channel.sendSafe("Trigger used: ${context.triggerUsed}")
+            .queue()
     }
+
 }

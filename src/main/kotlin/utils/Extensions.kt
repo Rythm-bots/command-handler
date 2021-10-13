@@ -46,5 +46,7 @@ inline fun <reified T> Any.promiseToBeOfType(): T {
     if (this is T)
         return this
 
-    throw InvalidTypeException("Any was promised to be type T but it was not.")
+    throw InvalidTypeException(
+        "Any was promised to be type ${T::class.qualifiedName} but got ${this::class.qualifiedName}."
+    )
 }

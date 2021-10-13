@@ -9,5 +9,6 @@ class TextCommandContext<Parameters>(
     val jda: JDA,
     val author: Member,
     val contentRaw: String,
-    val parameters: Parameters
+    val parameters: Parameters,
+    val triggerUsed: String
 )

@@ -6,7 +6,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Message
 
 abstract class TextCommand<Parameters>(
-    val name: String,
+    val triggers: ArrayList<String>,
     private val parameters: LinkedHashMap<String, TextCommandParameter>,
     private val subCommands: HashMap<String, TextCommand<*>>
 ) {
@@ -21,7 +21,7 @@ abstract class TextCommand<Parameters>(
     fun generateEmbed(color: Int): EmbedBuilder {
         val embedBuilder = EmbedBuilder()
 
-        embedBuilder.setTitle(name)
+        embedBuilder.setTitle(triggers.joinToString(", "))
         embedBuilder.setColor(color)
 
         parameters.forEach { param ->
@@ -75,8 +75,6 @@ abstract class TextCommand<Parameters>(
     }
 
     private fun gatherParameters(rightHandSide: String): HashMap<String, Any>? {
-        println(pattern)
-
         if (!pattern.matches(rightHandSide))
             return null
 
@@ -112,7 +110,7 @@ abstract class TextCommand<Parameters>(
         return hashMap
     }
 
-    fun execute(rightHandSide: String, message: Message) {
+    fun execute(commandNameUsed: String, rightHandSide: String, message: Message) {
         val parameters = gatherParameters(rightHandSide)
             ?: throw InvalidParametersException()
         val constructedParameters = parameterBuilder(message, parameters)
@@ -121,7 +119,8 @@ abstract class TextCommand<Parameters>(
             message.jda,
             message.member!!,
             message.contentRaw,
-            constructedParameters
+            constructedParameters,
+            commandNameUsed
         )
 
         if (!check(context))
@@ -134,7 +133,7 @@ abstract class TextCommand<Parameters>(
             val command = subCommands[potentialSubCommandName]
             if (command !== null)
             {
-                command.execute(rightHandSideSplit[1], message)
+                command.execute(potentialSubCommandName, rightHandSideSplit[1], message)
                 return
             }
         }

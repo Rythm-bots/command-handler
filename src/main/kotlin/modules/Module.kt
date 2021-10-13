@@ -23,10 +23,10 @@ open class Module(name: String, private val registry: TextCommandRegistry) {
         )
     }
 
-    protected fun registerCommand(textCommand: TextCommand<*>) {
+    protected fun registerCommands(vararg textCommand: TextCommand<*>) {
         if (disabled)
             return
 
-        registry.register(textCommand)
+        registry.register(*textCommand)
     }
 }
