@@ -1,9 +1,6 @@
 package modules.test.commands
 
-import commands.TextCommand
-import commands.TextCommandContext
-import commands.TextCommandParameter
-import commands.TextCommandParameterType
+import commands.*
 import net.dv8tion.jda.api.entities.Message
 import utils.sendSafe
 
@@ -27,7 +24,7 @@ class TestCommand : TextCommand<TestCommandParameters>(
         return TestCommandParameters(number, text, anotherNumber)
     }
 
-    override fun check(context: TextCommandContext<TestCommandParameters>): Boolean {
+    override fun check(context: PreParseContext): Boolean {
         return true
     }
 

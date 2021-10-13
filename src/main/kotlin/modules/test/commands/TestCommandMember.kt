@@ -1,9 +1,6 @@
 package modules.test.commands
 
-import commands.TextCommand
-import commands.TextCommandContext
-import commands.TextCommandParameter
-import commands.TextCommandParameterType
+import commands.*
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.Message
 import utils.promiseToBeOfType
@@ -31,7 +28,7 @@ class TestCommandMember : TextCommand<TestCommandMemberParameters>(
         return TestCommandMemberParameters(members, note)
     }
 
-    override fun check(context: TextCommandContext<TestCommandMemberParameters>): Boolean {
+    override fun check(context: PreParseContext): Boolean {
         return true
     }
 

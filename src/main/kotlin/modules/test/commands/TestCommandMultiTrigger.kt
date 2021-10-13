@@ -1,5 +1,6 @@
 package modules.test.commands
 
+import commands.PreParseContext
 import commands.TextCommand
 import commands.TextCommandContext
 import net.dv8tion.jda.api.entities.Message
@@ -14,7 +15,7 @@ class TestCommandMultiTrigger : TextCommand<Unit>(
         return
     }
 
-    override fun check(context: TextCommandContext<Unit>): Boolean {
+    override fun check(context: PreParseContext): Boolean {
         return true
     }
 

@@ -14,7 +14,7 @@ abstract class TextCommand<Parameters>(
 
     abstract fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): Parameters
 
-    abstract fun check(context: TextCommandContext<Parameters>): Boolean
+    abstract fun check(context: PreParseContext): Boolean
 
     abstract fun handler(context: TextCommandContext<Parameters>)
 
@@ -111,20 +111,21 @@ abstract class TextCommand<Parameters>(
     }
 
     fun execute(commandNameUsed: String, rightHandSide: String, message: Message) {
-        val parameters = gatherParameters(rightHandSide)
-            ?: throw InvalidParametersException()
-        val constructedParameters = parameterBuilder(message, parameters)
-        val context = TextCommandContext(
+        val preParseContext = PreParseContext(
             message.textChannel,
             message.jda,
             message.member!!,
             message.contentRaw,
-            constructedParameters,
             commandNameUsed
         )
 
-        if (!check(context))
+        if (!check(preParseContext))
             throw CheckFailedException()
+
+        val parameters = gatherParameters(rightHandSide)
+            ?: throw InvalidParametersException()
+        val constructedParameters = parameterBuilder(message, parameters)
+        val context = preParseContext.constructTextCommandContext(constructedParameters)
 
         val rightHandSideSplit = rightHandSide.split(Regex("\\s+"), limit = 2)
         if (rightHandSideSplit.isNotEmpty())
