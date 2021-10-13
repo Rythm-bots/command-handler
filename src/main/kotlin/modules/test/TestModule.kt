@@ -4,7 +4,7 @@ import commands.TextCommandRegistry
 import modules.Module
 import modules.test.commands.*
 
-class TestModule(registry: TextCommandRegistry) : Module("auto-mod", registry) {
+class TestModule(registry: TextCommandRegistry) : Module("test", registry) {
     init {
         this.registerCommands(
             TestCommand(),
@@ -12,7 +12,8 @@ class TestModule(registry: TextCommandRegistry) : Module("auto-mod", registry) {
             TestCommandMember(),
             TestCommandMultiple(),
             TestCommandNoParams(),
-            TestCommandMultiTrigger()
+            TestCommandMultiTrigger(),
+            TestCommandWithSubcommands()
         )
     }
 }

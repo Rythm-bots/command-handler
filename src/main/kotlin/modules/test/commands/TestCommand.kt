@@ -12,8 +12,7 @@ class TestCommand : TextCommand<TestCommandParameters>(
         "number" to TextCommandParameter(TextCommandParameterType.INT),
         "text" to TextCommandParameter(TextCommandParameterType.STRING),
         "anotherNumber" to TextCommandParameter(TextCommandParameterType.INT)
-    ),
-    hashMapOf()
+    )
 ) {
 
     override fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): TestCommandParameters {

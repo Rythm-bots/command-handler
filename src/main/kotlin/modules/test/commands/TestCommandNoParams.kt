@@ -7,9 +7,7 @@ import net.dv8tion.jda.api.entities.Message
 import utils.sendSafe
 
 class TestCommandNoParams : TextCommand<Unit>(
-    arrayListOf("no-params"),
-    linkedMapOf(),
-    hashMapOf()
+    arrayListOf("no-params")
 ) {
     override fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>) {
         return

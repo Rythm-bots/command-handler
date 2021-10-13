@@ -15,8 +15,7 @@ class TestCommandMultiple : TextCommand<TestCommandMultipleParameters>(
     linkedMapOf(
         "numbers" to TextCommandParameter(TextCommandParameterType.INT, null, true),
         "text" to TextCommandParameter(TextCommandParameterType.STRING)
-    ),
-    hashMapOf()
+    )
 ) {
     override fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): TestCommandMultipleParameters {
         val numbers = paramsParsed["numbers"]!!.promiseToBeOfType<ArrayList<Long>>()

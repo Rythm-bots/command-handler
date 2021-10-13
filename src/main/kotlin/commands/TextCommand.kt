@@ -7,10 +7,16 @@ import net.dv8tion.jda.api.entities.Message
 
 abstract class TextCommand<Parameters>(
     val triggers: ArrayList<String>,
-    private val parameters: LinkedHashMap<String, TextCommandParameter>,
-    private val subCommands: HashMap<String, TextCommand<*>>
-) {
+    private val parameters: LinkedHashMap<String, TextCommandParameter> = linkedMapOf(),
+    subCommands: ArrayList<TextCommand<*>> = arrayListOf()
+) : TextCommandRegistry() {
     private val pattern = buildValidationRegex().toRegex()
+
+    init {
+        subCommands.forEach { subCommand ->
+            register(subCommand)
+        }
+    }
 
     abstract fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): Parameters
 
@@ -23,6 +29,15 @@ abstract class TextCommand<Parameters>(
 
         embedBuilder.setTitle(triggers.joinToString(", "))
         embedBuilder.setColor(color)
+
+        if (this.commands.size > 0)
+        {
+            val subCommandsNames = this.commands
+                .joinToString("\n") {command ->
+                    command.triggers.joinToString(", ", prefix = "• ")
+                }
+            embedBuilder.addField("Subcommands", subCommandsNames, false)
+        }
 
         parameters.forEach { param ->
             val amountLimit = if (param.value.amountLimit == Int.MAX_VALUE)
@@ -110,7 +125,12 @@ abstract class TextCommand<Parameters>(
         return hashMap
     }
 
-    fun execute(commandNameUsed: String, rightHandSide: String, message: Message) {
+    private fun executeUnsafe(
+        commandNameUsed: String,
+        rightHandSide: String,
+        message: Message,
+        onError: ((e: Exception, m: Message, command: TextCommand<*>) -> Boolean)?
+    ) {
         val preParseContext = PreParseContext(
             message.textChannel,
             message.jda,
@@ -122,23 +142,41 @@ abstract class TextCommand<Parameters>(
         if (!check(preParseContext))
             throw CheckFailedException()
 
+        val rightHandSideSplit = rightHandSide.split(Regex("\\s+"), limit = 2)
+        if (rightHandSideSplit.isNotEmpty())
+        {
+            val potentialSubCommandName = rightHandSideSplit[0]
+            val command = findByTrigger(potentialSubCommandName)
+            val subCommandRightHandSide = if (rightHandSideSplit.size > 1) rightHandSideSplit[1] else ""
+            if (command !== null)
+            {
+                command.execute(potentialSubCommandName, subCommandRightHandSide, message, onError)
+                return
+            }
+        }
+
         val parameters = gatherParameters(rightHandSide)
             ?: throw InvalidParametersException()
         val constructedParameters = parameterBuilder(message, parameters)
         val context = preParseContext.constructTextCommandContext(constructedParameters)
 
-        val rightHandSideSplit = rightHandSide.split(Regex("\\s+"), limit = 2)
-        if (rightHandSideSplit.isNotEmpty())
-        {
-            val potentialSubCommandName = rightHandSideSplit[0]
-            val command = subCommands[potentialSubCommandName]
-            if (command !== null)
-            {
-                command.execute(potentialSubCommandName, rightHandSideSplit[1], message)
-                return
-            }
-        }
 
         handler(context)
+    }
+
+    fun execute(
+        commandNameUsed: String,
+        rightHandSide: String,
+        message: Message,
+        onError: ((e: Exception, m: Message, command: TextCommand<*>) -> Boolean)?
+    ) {
+        try {
+            executeUnsafe(commandNameUsed, rightHandSide, message, onError)
+        } catch (e: Exception) {
+            val result = onError?.let { it(e, message, this) }
+
+            if (result == false || result == null)
+                throw e
+        }
     }
 }

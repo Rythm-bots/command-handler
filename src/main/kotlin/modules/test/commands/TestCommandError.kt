@@ -9,8 +9,7 @@ class TestCommandError : TextCommand<TestCommandErrorParameters>(
     arrayListOf("error"),
     linkedMapOf(
         "type" to TextCommandParameter(TextCommandParameterType.INT)
-    ),
-    hashMapOf()
+    )
 ) {
     override fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): TestCommandErrorParameters {
         val type = paramsParsed["type"]!! as Long

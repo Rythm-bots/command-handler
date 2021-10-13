@@ -16,8 +16,7 @@ class TestCommandMember : TextCommand<TestCommandMemberParameters>(
             TextCommandParameterType.STRING,
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
         )
-    ),
-    hashMapOf()
+    )
 ) {
     override fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): TestCommandMemberParameters {
         val members = paramsParsed["members"]!!

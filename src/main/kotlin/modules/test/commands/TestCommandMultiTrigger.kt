@@ -7,9 +7,7 @@ import net.dv8tion.jda.api.entities.Message
 import utils.sendSafe
 
 class TestCommandMultiTrigger : TextCommand<Unit>(
-    arrayListOf("trigger1", "trigger2", "trigger3"),
-    linkedMapOf(),
-    hashMapOf()
+    arrayListOf("trigger1", "trigger2", "trigger3")
 ) {
     override fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>) {
         return
