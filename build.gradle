@@ -4,14 +4,26 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'fm.rythm'
-version = '1.0-SNAPSHOT'
+group = 'fm.rythm.commandhandler'
+version = '0.1'
 
 repositories {
     mavenCentral()
     maven {
         name 'm2-dv8tion'
         url 'https://m2.dv8tion.net/releases'
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'fm.rythm.commandhandler'
+            artifactId = 'commandhandler'
+            version = '0.1'
+
+            from components.java
+        }
     }
 }
 
