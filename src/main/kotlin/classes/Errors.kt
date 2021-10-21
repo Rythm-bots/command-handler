@@ -6,3 +6,5 @@ class CheckFailedException : Exception("You do not have permissions to execute t
 
 class CommandTriggerConflictException(trigger: String)
     : Exception("Trigger $trigger has a conflict.")
+
+class TypePromiseBroken(message: String) : Exception(message)

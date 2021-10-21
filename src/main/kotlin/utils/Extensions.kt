@@ -1,8 +1,7 @@
 package utils
 
-import com.sun.jdi.InvalidTypeException
+import classes.TypePromiseBroken
 import net.dv8tion.jda.api.MessageBuilder
-import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.requests.restaction.MessageAction
 
@@ -46,7 +45,7 @@ inline fun <reified T> Any.promiseToBeOfType(): T {
     if (this is T)
         return this
 
-    throw InvalidTypeException(
+    throw TypePromiseBroken(
         "Any was promised to be type ${T::class.qualifiedName} but got ${this::class.qualifiedName}."
     )
 }
