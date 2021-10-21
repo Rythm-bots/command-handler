@@ -11,6 +11,7 @@ abstract class TextCommand<Parameters>(
     subCommands: ArrayList<TextCommand<*>> = arrayListOf()
 ) : Registry() {
     private val pattern = buildValidationRegex().toRegex()
+    internal var moduleCheck: ((context: PreParseContext) -> Boolean)? = null
 
     init {
         subCommands.forEach { subCommand ->
@@ -20,6 +21,9 @@ abstract class TextCommand<Parameters>(
 
     abstract fun parameterBuilder(message: Message, paramsParsed: HashMap<String, Any>): Parameters
 
+    /**
+     * Has a lower priority than the module check.
+     */
     abstract fun check(context: PreParseContext): Boolean
 
     abstract fun handler(context: Context<Parameters>)
@@ -101,25 +105,23 @@ abstract class TextCommand<Parameters>(
             val multiple = param.allowMultiple
             val value = groups[name]!!.value
 
+            val patternInstance = type.pattern.toRegex()
+            val values = arrayListOf<Any>()
+
+            patternInstance.findAll(value).forEach { match ->
+                val group = match.groups[1]
+
+                values.add(
+                    applyTypeToParameter(type, group!!.value)
+                )
+            }
+
             if (multiple) {
-                val patternInstance = type.pattern.toRegex()
-
-                val values = arrayListOf<Any>()
-
-                patternInstance.findAll(value).forEach { match ->
-                    val group = match.groups[1]
-
-                    values.add(
-                        applyTypeToParameter(type, group!!.value)
-                    )
-                }
-
                 hashMap[name] = values
                 return@forEach
             }
 
-            val typedValue = applyTypeToParameter(type, value)
-            hashMap[name] = typedValue
+            hashMap[name] = values[0]
         }
 
         return hashMap
@@ -139,7 +141,9 @@ abstract class TextCommand<Parameters>(
             commandNameUsed
         )
 
-        if (!check(preParseContext))
+        val moduleCheckPassed = moduleCheck?.let { it(preParseContext) } ?: true
+        val commandCheckPassed = check(preParseContext)
+        if (!moduleCheckPassed || !commandCheckPassed)
             throw CheckFailedException()
 
         val rightHandSideSplit = rightHandSide.split(Regex("\\s+"), limit = 2)

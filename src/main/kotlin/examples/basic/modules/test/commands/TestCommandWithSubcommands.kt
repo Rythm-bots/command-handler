@@ -1,4 +1,4 @@
-package modules.test.commands
+package examples.basic.modules.test.commands
 
 import commands.text.*
 import net.dv8tion.jda.api.entities.Message

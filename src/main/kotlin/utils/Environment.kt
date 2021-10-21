@@ -2,7 +2,6 @@ package utils
 
 class Environment {
     companion object {
-        val TOKEN: String = System.getenv("TOKEN")
         val DISABLED_EVENTS = (System.getenv("DISABLED_EVENTS") ?: "")
             .replace(" ", "")
             .split(",")

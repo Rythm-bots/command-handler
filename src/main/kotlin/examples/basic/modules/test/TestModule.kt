@@ -1,8 +1,8 @@
-package modules.test
+package examples.basic.modules.test
 
 import commands.text.Registry
-import modules.Module
-import modules.test.commands.*
+import classes.Module
+import examples.basic.modules.test.commands.*
 
 class TestModule(registry: Registry) : Module("test", registry) {
     init {

@@ -1,11 +1,11 @@
+package examples.basic
+
 import commands.text.CommandsEventsHandler
 import commands.text.Registry
-import events.classes.Registration
-import events.genericHandlers.ReadyEventHandler
+import events.classes.registerGenericEvents
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag
-import utils.Environment
 
 fun configureMemoryUsage(jda: JDABuilder) {
     jda.disableCache(CacheFlag.VOICE_STATE, CacheFlag.ACTIVITY)
@@ -13,7 +13,8 @@ fun configureMemoryUsage(jda: JDABuilder) {
 }
 
 fun main() {
-    val jdaBuilder = JDABuilder.createDefault(Environment.TOKEN)
+    val token: String = System.getenv("TOKEN")
+    val jdaBuilder = JDABuilder.createDefault(token)
 
     // Configure intents and caching
     configureMemoryUsage(jdaBuilder)
@@ -24,12 +25,11 @@ fun main() {
 
     // No need to worry about disabling or enabling handlers here,
     // handlers are by design aware of whether they're enabled or not.
-    Registration.registerGenericEvents(
+    registerGenericEvents(
         builtJDA,
         ReadyEventHandler(commandsRegistry),
         CommandsEventsHandler(commandsRegistry)
     )
-
 
     builtJDA.awaitReady()
 }

@@ -1,8 +1,8 @@
-package events.genericHandlers
+package examples.basic
 
 import commands.text.Registry
 import events.classes.EventHandler
-import modules.test.TestModule
+import examples.basic.modules.test.TestModule
 import net.dv8tion.jda.api.events.ReadyEvent
 
 class ReadyEventHandler(private val registry: Registry) : EventHandler("ready") {
