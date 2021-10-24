@@ -10,8 +10,47 @@ abstract class TextCommand<Parameters>(
     private val parameters: LinkedHashMap<String, TextCommandParameter> = linkedMapOf(),
     subCommands: ArrayList<TextCommand<*>> = arrayListOf()
 ) : Registry() {
-    private val pattern = buildValidationRegex().toRegex()
+    private val pattern = buildValidationRegex(parameters).toRegex()
     internal var moduleCheck: ((context: PreParseContext) -> Boolean)? = null
+
+    internal open fun getPattern(): Regex {
+        return pattern
+    }
+
+    internal open fun getParameters(): LinkedHashMap<String, TextCommandParameter> {
+        return parameters
+    }
+
+    companion object {
+        internal fun buildValidationRegex(parameters: LinkedHashMap<String, TextCommandParameter>): String {
+            val groups = parameters.map { (name, value) ->
+                val type = value.type
+                val multiple = value.allowMultiple
+
+                val pattern = type.pattern
+
+                if (!multiple)
+                    return@map "(?<$name>$pattern)"
+
+                return@map """(?<$name>(?:$pattern|\s)+)"""
+            }
+
+            return groups.joinToString("\\s+", "^", "$")
+        }
+
+        internal fun preParseContext(
+            message: Message,
+            commandNameUsed: String
+        ): PreParseContext {
+            return PreParseContext(
+                message.textChannel,
+                message.jda,
+                message.member!!,
+                message.contentRaw,
+                commandNameUsed
+            )
+        }
+    }
 
     init {
         subCommands.forEach { subCommand ->
@@ -43,7 +82,7 @@ abstract class TextCommand<Parameters>(
             embedBuilder.addField("Subcommands", subCommandsNames, false)
         }
 
-        parameters.forEach { param ->
+        getParameters().forEach { param ->
             val amountLimit = if (param.value.amountLimit == Int.MAX_VALUE)
                 "∞"
             else
@@ -64,22 +103,6 @@ abstract class TextCommand<Parameters>(
         return embedBuilder
     }
 
-    private fun buildValidationRegex(): String {
-        val groups = parameters.map { (name, value) ->
-            val type = value.type
-            val multiple = value.allowMultiple
-
-            val pattern = type.pattern
-
-            if (!multiple)
-                return@map "(?<$name>$pattern)"
-
-            return@map """(?<$name>(?:$pattern|\s)+)"""
-        }
-
-        return groups.joinToString("\\s+", "^", "$")
-    }
-
     private fun applyTypeToParameter(
         type: TextCommandParameterType,
         value: String
@@ -94,13 +117,13 @@ abstract class TextCommand<Parameters>(
     }
 
     private fun gatherParameters(rightHandSide: String): HashMap<String, Any>? {
-        if (!pattern.matches(rightHandSide))
+        if (!getPattern().matches(rightHandSide))
             return null
 
-        val groups = pattern.find(rightHandSide)!!.groups
+        val groups = getPattern().find(rightHandSide)!!.groups
 
         val hashMap = hashMapOf<String, Any>()
-        parameters.forEach { (name, param) ->
+        getParameters().forEach { (name, param) ->
             val type = param.type
             val multiple = param.allowMultiple
             val value = groups[name]!!.value
@@ -128,19 +151,11 @@ abstract class TextCommand<Parameters>(
     }
 
     private fun executeUnsafe(
-        commandNameUsed: String,
         rightHandSide: String,
         message: Message,
-        onError: ((e: Exception, m: Message, command: TextCommand<*>) -> Boolean)?
+        onError: ((e: Exception, m: Message, command: TextCommand<*>) -> Boolean)?,
+        preParseContext: PreParseContext
     ) {
-        val preParseContext = PreParseContext(
-            message.textChannel,
-            message.jda,
-            message.member!!,
-            message.contentRaw,
-            commandNameUsed
-        )
-
         val moduleCheckPassed = moduleCheck?.let { it(preParseContext) } ?: true
         val commandCheckPassed = check(preParseContext)
         if (!moduleCheckPassed || !commandCheckPassed)
@@ -154,7 +169,13 @@ abstract class TextCommand<Parameters>(
             val subCommandRightHandSide = if (rightHandSideSplit.size > 1) rightHandSideSplit[1] else ""
             if (command !== null)
             {
-                command.execute(potentialSubCommandName, subCommandRightHandSide, message, onError)
+                val subCommandPreParseContext = preParseContext(message, potentialSubCommandName)
+                command.execute(
+                    subCommandRightHandSide,
+                    message,
+                    onError,
+                    subCommandPreParseContext
+                )
                 return
             }
         }
@@ -164,18 +185,17 @@ abstract class TextCommand<Parameters>(
         val constructedParameters = parameterBuilder(message, parameters)
         val context = preParseContext.constructTextCommandContext(constructedParameters)
 
-
         handler(context)
     }
 
     fun execute(
-        commandNameUsed: String,
         rightHandSide: String,
         message: Message,
-        onError: ((e: Exception, m: Message, command: TextCommand<*>) -> Boolean)?
+        onError: ((e: Exception, m: Message, command: TextCommand<*>) -> Boolean)?,
+        preParseContext: PreParseContext
     ) {
         try {
-            executeUnsafe(commandNameUsed, rightHandSide, message, onError)
+            executeUnsafe(rightHandSide, message, onError, preParseContext)
         } catch (e: Exception) {
             val result = onError?.let { it(e, message, this) }
 

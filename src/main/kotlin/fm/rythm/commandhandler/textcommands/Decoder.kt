@@ -34,5 +34,6 @@ fun tryDecodeAndExecute(
 
     // Try and find the command by the trigger, if no such command is found, return.
     val command = commandRegistry.findByTrigger(commandName) ?: return
-    command.execute(commandName, commandRightHandSide, message, onError)
+    val preParseContext = TextCommand.preParseContext(message, commandName)
+    command.execute(commandRightHandSide, message, onError, preParseContext)
 }

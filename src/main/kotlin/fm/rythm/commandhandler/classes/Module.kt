@@ -9,11 +9,25 @@ import fm.rythm.commandhandler.utils.Environment
 open class Module(name: String, private val registry: Registry) {
     private val disabled: Boolean = !Environment.ENABLED_MODULES.contains(name)
 
-    protected fun registerEventsIfEnabled(
+    /**
+     * For unit testing purposes.
+     */
+    open fun getRegistry(): Registry {
+        return registry
+    }
+
+    /**
+     * For unit testing purposes.
+     */
+    open fun getDisabled(): Boolean {
+        return disabled
+    }
+
+    fun registerEventsIfEnabled(
         jda: JDA,
         vararg handlers: EventHandler
     ) {
-        if (disabled)
+        if (getDisabled())
             return
 
         registerGenericEvents(
@@ -26,12 +40,14 @@ open class Module(name: String, private val registry: Registry) {
         return true
     }
 
-    protected fun registerCommands(vararg textCommand: TextCommand<*>) {
-        if (disabled)
+    fun registerCommands(vararg textCommand: TextCommand<*>) {
+        if (getDisabled())
             return
 
-        textCommand.forEach { command -> command.moduleCheck = ::check }
+        textCommand.forEach {
+                command -> command.moduleCheck = ::check
+        }
 
-        registry.register(*textCommand)
+        getRegistry().register(*textCommand)
     }
 }

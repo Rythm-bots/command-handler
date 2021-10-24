@@ -3,7 +3,11 @@ package fm.rythm.commandhandler.textcommands
 import fm.rythm.commandhandler.classes.CommandTriggerConflictException
 
 open class Registry {
-    protected val commands = arrayListOf<TextCommand<*>>()
+    val commands = arrayListOf<TextCommand<*>>()
+
+    open fun getCommandsList(): ArrayList<TextCommand<*>> {
+        return commands
+    }
 
     /**
      * Find command by specified trigger.
@@ -11,7 +15,7 @@ open class Registry {
      * @return The text command if one exists by the specified trigger, otherwise null.
      */
     fun findByTrigger(trigger: String): TextCommand<*>? {
-        return commands.find { command ->
+        return getCommandsList().find { command ->
             return@find command.triggers.contains(trigger)
         }
     }
@@ -35,6 +39,6 @@ open class Registry {
         }
 
         // Register commands all specified commands.
-        commands.addAll(textCommands)
+        getCommandsList().addAll(textCommands)
     }
 }

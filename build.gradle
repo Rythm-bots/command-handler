@@ -28,14 +28,16 @@ publishing {
 }
 
 dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
     testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
     implementation("net.dv8tion:JDA:4.3.0_277") {
         exclude module: 'opus-java'
     }
 }
 
 test {
-    useJUnit()
+    useJUnitPlatform()
 }
 
 compileKotlin {

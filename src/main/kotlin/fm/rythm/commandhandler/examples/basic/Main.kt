@@ -3,6 +3,7 @@ package fm.rythm.commandhandler.examples.basic
 import fm.rythm.commandhandler.textcommands.CommandsEventsHandler
 import fm.rythm.commandhandler.textcommands.Registry
 import fm.rythm.commandhandler.classes.registerGenericEvents
+import fm.rythm.commandhandler.examples.basic.modules.test.TestModule
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.requests.GatewayIntent
 import net.dv8tion.jda.api.utils.cache.CacheFlag
@@ -32,4 +33,6 @@ fun main() {
     )
 
     builtJDA.awaitReady()
+
+    TestModule(commandsRegistry)
 }

@@ -13,8 +13,5 @@ class ReadyEventHandler(private val registry: Registry) : EventHandler("ready") 
         val discriminator = selfUser.discriminator;
 
         println("Logged on to account '$name#$discriminator'")
-
-        // Load modules
-        TestModule(registry)
     }
 }

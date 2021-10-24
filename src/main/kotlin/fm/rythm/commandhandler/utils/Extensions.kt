@@ -24,10 +24,8 @@ fun MessageChannel.sendSafe(messageBuilder: MessageBuilder): MessageAction {
 fun MessageChannel.sendSafe(content: String): MessageAction {
     val message = MessageBuilder()
         .setContent(content)
-        .setAllowedMentions(emptyList())
-        .build()
 
-    return this.sendMessage(message)
+    return this.sendSafe(message)
 }
 
 fun Long.asDiscordTimestamp(style: DiscordTimestampStyle = DiscordTimestampStyle.ShortDateTime): String {
