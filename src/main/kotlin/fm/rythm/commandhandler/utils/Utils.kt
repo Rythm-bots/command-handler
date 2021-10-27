@@ -5,6 +5,7 @@ import fm.rythm.commandhandler.textcommands.getCommand
 import fm.rythm.commandhandler.textcommands.getCommandName
 import fm.rythm.commandhandler.textcommands.getRawParameters
 
+// TODO: move to CommandUtils.kt
 /**
  * Returns the command used. Accounts for subcommands.
  *
@@ -12,9 +13,9 @@ import fm.rythm.commandhandler.textcommands.getRawParameters
  */
 fun recursivelyFindCommandUsed(
     prefixLength: Int,
-    commands: ArrayList<TextCommand>,
+    commands: ArrayList<TextCommand<*>>,
     content: String
-): TextCommand? {
+): TextCommand<*>? {
     val commandName = getCommandName(prefixLength, content)
     val foundCommand = getCommand(commands, commandName) ?: return null
 

@@ -20,10 +20,10 @@ internal class CommandUtilsTest {
         ]
     )
     fun getCommand(commandName: String) {
-        val command = mock<TextCommand> {
+        val command = mock<TextCommand<Unit>> {
             on { getNames() } doReturn arrayListOf(commandName)
         }
-        val commands = arrayListOf(command)
+        val commands = arrayListOf<TextCommand<*>>(command)
 
         val foundCommand = getCommand(commands, commandName)
         assertEquals(command, foundCommand)

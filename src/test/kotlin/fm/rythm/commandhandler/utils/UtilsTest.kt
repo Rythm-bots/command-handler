@@ -23,7 +23,7 @@ class UtilsTest {
             "1,test,=test 132819036282159104"
         )
         fun testValidCommands(prefixLength: Int, commandName: String, commandContent: String) {
-            val command = mock<TextCommand> {
+            val command = mock<TextCommand<Unit>> {
                 on { getNames() } doReturn arrayListOf(commandName)
             }
             val commandUsed = recursivelyFindCommandUsed(prefixLength, arrayListOf(command), commandContent)
@@ -45,10 +45,10 @@ class UtilsTest {
             subCommandName: String,
             commandContent: String
         ) {
-            val subCommand = mock<TextCommand> {
+            val subCommand = mock<TextCommand<Unit>> {
                 on { getNames() } doReturn arrayListOf(subCommandName)
             }
-            val command = mock<TextCommand> {
+            val command = mock<TextCommand<Unit>> {
                 on { getNames() } doReturn arrayListOf(baseCommandName)
                 on { getRegistry() } doReturn arrayListOf(subCommand)
             }

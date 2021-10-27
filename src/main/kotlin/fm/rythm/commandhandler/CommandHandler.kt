@@ -17,16 +17,17 @@ enum class CommandHandlerResult {
      * For when the message is a valid command, but the command name isn't found.
      */
     COMMAND_NOT_FOUND,
+    INVALID_PARAMETERS,
     EXECUTION_ERROR
 }
 
 class CommandHandler(
     private val prefixes: ArrayList<String>,
-    private val commands: ArrayList<TextCommand>,
+    private val commands: ArrayList<TextCommand<*>>,
     private val onError: (() -> Boolean)?
 ) {
 
-    fun handleJdaMessage(message: Message): Pair<CommandHandlerResult, TextCommand?> {
+    fun handleJdaMessage(message: Message): Pair<CommandHandlerResult, TextCommand<*>?> {
         val content = message.contentRaw
         val prefixUsed = findPrefixUsed(prefixes, content) ?: return Pair(CommandHandlerResult.NO_PREFIX, null)
         val possibleCommand = isPossibleCommand(prefixUsed, content)
@@ -40,8 +41,17 @@ class CommandHandler(
             content
         ) ?: return Pair(CommandHandlerResult.COMMAND_NOT_FOUND, null)
 
+        val commandNameUsed = getCommandName(prefixUsed.length, content)
+        val rawParameterString = getRawParameters(prefixUsed.length, commandNameUsed, content)
+        val parametersRegex = compileParameterRegex(commandUsed.getParameters())
+        val rawParameterValues = extractParameters(
+            rawParameterString,
+            commandUsed.getParameters(),
+            parametersRegex
+        ) ?: return Pair(CommandHandlerResult.INVALID_PARAMETERS, null)
+
         return try {
-            commandUsed.execute()
+            commandUsed.execute(rawParameterValues, message)
             Pair(CommandHandlerResult.SUCCESS, commandUsed)
         } catch (e: Exception) {
             val exceptionHandled = this.onError?.let { it() } ?: throw e

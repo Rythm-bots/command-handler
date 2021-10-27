@@ -48,3 +48,70 @@ fun getRawParameters(prefixLength: Int, commandName: String, content: String): S
         .removeRange(0, prefixLength + commandName.length)
         .trim()
 }
+
+/**
+ * Compile given parameters into named regex groups.
+ *
+ * @see getRawParameters
+ * @return Regex to match against raw parameters.
+ *         Can and should be used to extract group values as well.
+ */
+fun compileParameterRegex(parameters: LinkedHashMap<String, Parameter>): Regex {
+    val keys = parameters.keys
+    val values = parameters.values.toTypedArray()
+    
+    val regex = keys.mapIndexed { index, s ->
+        val value = values[index]
+        val type = value.type
+        val allowMultiple = value.allowMultiple
+
+        if (allowMultiple)
+            return@mapIndexed """(?<$s>(?:${type.regex}|\s)+)"""
+
+        return@mapIndexed """(?<$s>${type.regex})"""
+    }.joinToString("""\s+""", "^", "$")
+
+    return Regex(regex)
+}
+
+fun applyTypeToParameter(type: ParameterType, value: String): Any {
+    return when (type) {
+        ParameterType.TEXT -> value
+        ParameterType.INT -> value.toInt()
+        ParameterType.LONG -> value.toLong()
+        ParameterType.USER -> value.toLong()
+    }
+}
+
+fun extractParameters(
+    rawParameters: String,
+    parameters: LinkedHashMap<String, Parameter>,
+    regex: Regex
+): HashMap<String, Any>? {
+    val result = regex.find(rawParameters) ?: return null
+    val groups = result.groups
+    val typedParameters = hashMapOf<String, Any>()
+
+    parameters.forEach { (name, parameter) ->
+        val type = parameter.type
+        val allowMultiple = parameter.allowMultiple
+        val group = groups[name]!!.value
+        val parameterRegex = type.regex.toRegex()
+
+        val values = parameterRegex.findAll(group).map { result ->
+            val valueGroup = result.groups[1]!!.value
+
+            return@map applyTypeToParameter(type, valueGroup)
+        }.toList()
+
+        if (allowMultiple)
+        {
+            typedParameters[name] = values
+            return@forEach
+        }
+
+        typedParameters[name] = values[0]
+    }
+
+    return typedParameters
+}

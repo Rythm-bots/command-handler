@@ -1,21 +1,51 @@
 package fm.rythm.commandhandler
 
+import fm.rythm.commandhandler.textcommands.CommandContext
+import fm.rythm.commandhandler.textcommands.Parameter
 import fm.rythm.commandhandler.textcommands.TextCommand
 import net.dv8tion.jda.api.entities.Message
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import java.lang.NullPointerException
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
-class TestCommand(names: ArrayList<String>, private val shouldError: Boolean = false) : TextCommand(names) {
-    override fun execute() {
+class TestCommand(
+    names: ArrayList<String>,
+    parameters: LinkedHashMap<String, Parameter> = linkedMapOf(),
+    private val shouldError: Boolean = false
+) : TextCommand<Unit>(names, parameters) {
+
+    override fun parameterFactory(parameters: HashMap<String, Any>) {
+        return
+    }
+
+    override fun onExecuted(parameters: CommandContext<Unit>) {
         if (shouldError)
             throw NullPointerException("Exception thrown for testing purposes.")
+    }
+}
+
+data class TestCommandParameters(val number: Int, val users: List<Long>, val text: String)
+
+class TestCommandWithParameters(
+    names: ArrayList<String>,
+    parameters: LinkedHashMap<String, Parameter> = linkedMapOf()
+) : TextCommand<TestCommandParameters>(names, parameters) {
+
+    override fun parameterFactory(parameters: HashMap<String, Any>): TestCommandParameters {
+        val number = parameters["number"]!! as Int
+        val users = parameters["users"]!! as List<Long> // TODO: solve warning
+        val text = parameters["text"]!! as String
+
+        return TestCommandParameters(number, users, text)
+    }
+
+    override fun onExecuted(parameters: CommandContext<TestCommandParameters>) {
+
     }
 }
 
@@ -34,7 +64,7 @@ internal class CommandHandlerTest {
     )
     fun testWithNoPrefix(content: String) {
         val prefixes = arrayListOf("=")
-        val commands = arrayListOf<TextCommand>(
+        val commands = arrayListOf<TextCommand<*>>(
             TestCommand(arrayListOf("test")),
             TestCommand(arrayListOf("command"))
         )
@@ -61,7 +91,7 @@ internal class CommandHandlerTest {
     )
     fun testNotCommand(content: String) {
         val prefixes = arrayListOf(content)
-        val commands = arrayListOf<TextCommand>(
+        val commands = arrayListOf<TextCommand<*>>(
             TestCommand(arrayListOf("test")),
             TestCommand(arrayListOf("command"))
         )
@@ -86,7 +116,7 @@ internal class CommandHandlerTest {
     )
     fun testNotFound(content: String) {
         val prefixes = arrayListOf("=")
-        val commands = arrayListOf<TextCommand>(
+        val commands = arrayListOf<TextCommand<*>>(
             TestCommand(arrayListOf("test")),
             TestCommand(arrayListOf("command"))
         )
@@ -112,7 +142,7 @@ internal class CommandHandlerTest {
     fun testValid(content: String) {
         val prefixes = arrayListOf("=")
         val command = TestCommand(arrayListOf("test", "command"))
-        val commands = arrayListOf<TextCommand>(
+        val commands = arrayListOf<TextCommand<*>>(
             command
         )
         val mockMessage = mock<Message> {
@@ -131,8 +161,8 @@ internal class CommandHandlerTest {
     @Test
     fun testExecutionErrorWithoutOnError() {
         val prefixes = arrayListOf("=")
-        val command = TestCommand(arrayListOf("test"), true)
-        val commands = arrayListOf<TextCommand>(
+        val command = TestCommand(arrayListOf("test"), linkedMapOf(), true)
+        val commands = arrayListOf<TextCommand<*>>(
             command
         )
         val mockMessage = mock<Message> {
@@ -152,8 +182,8 @@ internal class CommandHandlerTest {
     @Test
     fun testUnhandledExecutionError() {
         val prefixes = arrayListOf("=")
-        val command = TestCommand(arrayListOf("test"), true)
-        val commands = arrayListOf<TextCommand>(
+        val command = TestCommand(arrayListOf("test"), linkedMapOf(), true)
+        val commands = arrayListOf<TextCommand<*>>(
             command
         )
         val mockMessage = mock<Message> {
@@ -177,8 +207,8 @@ internal class CommandHandlerTest {
     @Test
     fun testHandledExecutionError() {
         val prefixes = arrayListOf("=")
-        val command = TestCommand(arrayListOf("test"), true)
-        val commands = arrayListOf<TextCommand>(
+        val command = TestCommand(arrayListOf("test"), linkedMapOf(),true)
+        val commands = arrayListOf<TextCommand<*>>(
             command
         )
         val mockMessage = mock<Message> {
@@ -193,6 +223,29 @@ internal class CommandHandlerTest {
 
         // NullPointerException is hardcoded in TestCommand
         // The triggering of the error is defined by the shouldError argument of TestCommand's constructor
+        assertDoesNotThrow {
+            commandHandler.handleJdaMessage(mockMessage)
+        }
+    }
+
+    @DisplayName("Command execution with parameters")
+    @ParameterizedTest(name = "Should find parameters ''{0}'', ''{1}'', ''{2}''")
+    @CsvSource(
+        "123,<@132819036282159104> 132819036282159104 <@!132819036282159104>,Per guest prepare a dozen tablespoons of ice water with cut strudel for dessert.",
+        "321,<@132819036282159104>,Pin of a lively courage, pull the power.",
+    )
+    fun testMultiParameters(firstParam: String, secondParam: String, thirdParam: String) {
+        val prefixes = arrayListOf("=")
+        val command = TestCommandWithParameters(arrayListOf("test"), linkedMapOf())
+        val commands = arrayListOf<TextCommand<*>>(
+            command
+        )
+        val mockMessage = mock<Message> {
+            on { contentRaw } doReturn "=test $firstParam $secondParam $thirdParam"
+        }
+
+        val commandHandler = CommandHandler(prefixes, commands, null)
+
         assertDoesNotThrow {
             commandHandler.handleJdaMessage(mockMessage)
         }
