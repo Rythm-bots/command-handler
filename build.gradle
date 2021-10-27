@@ -1,0 +1,50 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+    id 'java-library'
+    id 'maven-publish'
+}
+
+group = 'fm.rythm.commandhandler'
+version = '0.1'
+
+repositories {
+    mavenCentral()
+    maven {
+        name 'm2-dv8tion'
+        url 'https://m2.dv8tion.net/releases'
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = 'fm.rythm.commandhandler'
+            artifactId = 'commandhandler'
+            version = '0.1'
+
+            from components.java
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.7.0'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+    testImplementation "org.mockito.kotlin:mockito-kotlin:4.0.0"
+    implementation("net.dv8tion:JDA:4.3.0_277") {
+        exclude module: 'opus-java'
+    }
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = '1.8'
+}
