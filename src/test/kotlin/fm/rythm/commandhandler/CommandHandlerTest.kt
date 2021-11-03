@@ -8,7 +8,6 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
-import java.lang.NullPointerException
 import kotlin.test.assertEquals
 
 class TestModule(
