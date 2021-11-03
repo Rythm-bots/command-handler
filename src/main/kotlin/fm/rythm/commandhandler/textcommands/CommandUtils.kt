@@ -9,3 +9,7 @@ fun getCommand(commands: ArrayList<TextCommand<*>>, commandName: String): TextCo
 fun <Parameters> commandContextFactory(message: Message, parameters: Parameters): CommandContext<Parameters> {
     return CommandContext(message, parameters)
 }
+
+fun moduleContextFactory(command: TextCommand<*>, message: Message): ModuleContext {
+    return ModuleContext(message, command)
+}

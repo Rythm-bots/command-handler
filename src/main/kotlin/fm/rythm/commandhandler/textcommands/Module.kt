@@ -1,4 +1,5 @@
 package fm.rythm.commandhandler.textcommands
 
-class Module {
+abstract class Module(val enabled: Boolean) {
+    abstract fun check(context: ModuleContext): Boolean
 }

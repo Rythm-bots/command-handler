@@ -4,7 +4,8 @@ import net.dv8tion.jda.api.entities.Message
 
 abstract class TextCommand<Parameters>(
     private val names: ArrayList<String>,
-    private val parameters: LinkedHashMap<String, Parameter>
+    private val parameters: LinkedHashMap<String, Parameter>,
+    val module: Module? = null
 ) {
     private val subcommandRegistry = arrayListOf<TextCommand<*>>()
 

@@ -53,8 +53,13 @@ class CommandHandler(
             commandUsed.getParameters(),
             parametersRegex
         ) ?: return Pair(CommandHandlerResult.INVALID_PARAMETERS, null)
+        val moduleContext = moduleContextFactory(commandUsed, message)
 
         return try {
+            val commandModule = commandUsed.module
+            if (commandModule != null && commandModule.enabled && !commandModule.check(moduleContext))
+                return Pair(CommandHandlerResult.FORBIDDEN, commandUsed)
+
             val wasPermitted = commandUsed.execute(rawParameterValues, message)
 
             if (!wasPermitted)

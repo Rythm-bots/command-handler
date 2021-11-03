@@ -1,9 +1,6 @@
 package fm.rythm.commandhandler
 
-import fm.rythm.commandhandler.textcommands.CommandContext
-import fm.rythm.commandhandler.textcommands.Parameter
-import fm.rythm.commandhandler.textcommands.ParameterType
-import fm.rythm.commandhandler.textcommands.TextCommand
+import fm.rythm.commandhandler.textcommands.*
 import net.dv8tion.jda.api.entities.Message
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
@@ -14,12 +11,22 @@ import org.mockito.kotlin.mock
 import java.lang.NullPointerException
 import kotlin.test.assertEquals
 
+class TestModule(
+    private val shouldAllowCommand: Boolean,
+    enabled: Boolean
+) : Module(enabled) {
+    override fun check(context: ModuleContext): Boolean {
+        return shouldAllowCommand
+    }
+}
+
 class TestCommand(
     names: ArrayList<String>,
     parameters: LinkedHashMap<String, Parameter> = linkedMapOf(),
     private val shouldError: Boolean = false,
-    private val permitted: Boolean = true
-) : TextCommand<Unit>(names, parameters) {
+    private val permitted: Boolean = true,
+    module: Module? = null
+) : TextCommand<Unit>(names, parameters, module) {
 
     override fun check(context: CommandContext<Unit>): Boolean {
         return permitted
@@ -284,5 +291,71 @@ internal class CommandHandlerTest {
             val result = commandHandler.handleJdaMessage(mockMessage)
             assertEquals(Pair(CommandHandlerResult.FORBIDDEN, command), result)
         }
+    }
+
+    @DisplayName("Command with module whose check fails should not execute")
+    @Test
+    fun testModuleCheckFailure() {
+        val prefixes = arrayListOf("=")
+        val testModule = TestModule(shouldAllowCommand = false, true)
+        val command = TestCommand(arrayListOf("test"), linkedMapOf(), permitted = false, module = testModule)
+        val commands = arrayListOf<TextCommand<*>>(
+            command
+        )
+
+        val mockMessage = mock<Message> {
+            on { contentRaw } doReturn "=test"
+        }
+
+        val commandHandler = CommandHandler(prefixes, commands, null)
+
+        val (result, commandResult) = commandHandler.handleJdaMessage(mockMessage)
+
+        assertEquals(CommandHandlerResult.FORBIDDEN, result)
+        assertEquals(commandResult, command)
+    }
+
+    @DisplayName("Command with disabled module should be executed regardless of whether the module's check passes or not, provided the command's check passes")
+    @Test
+    fun testModuleDisabled() {
+        val prefixes = arrayListOf("=")
+        val testModule = TestModule(shouldAllowCommand = false, false)
+        val command = TestCommand(arrayListOf("test"), linkedMapOf(), permitted = false, module = testModule)
+        val commands = arrayListOf<TextCommand<*>>(
+            command
+        )
+
+        val mockMessage = mock<Message> {
+            on { contentRaw } doReturn "=test"
+        }
+
+        val commandHandler = CommandHandler(prefixes, commands, null)
+
+        val (result, commandResult) = commandHandler.handleJdaMessage(mockMessage)
+
+        assertEquals(CommandHandlerResult.FORBIDDEN, result)
+        assertEquals(commandResult, command)
+    }
+
+    @DisplayName("Command with module whose check does not fail should execute with a passing command check")
+    @Test
+    fun testModuleCheckSuccess() {
+        val prefixes = arrayListOf("=")
+        val testModule = TestModule(shouldAllowCommand = true, true)
+        val command = TestCommand(arrayListOf("test"), linkedMapOf(), permitted = false, module = testModule)
+        val commands = arrayListOf<TextCommand<*>>(
+            command
+        )
+
+        val mockMessage = mock<Message> {
+            on { contentRaw } doReturn "=test"
+        }
+
+        val commandHandler = CommandHandler(prefixes, commands, null)
+
+        val (result, commandResult) = commandHandler.handleJdaMessage(mockMessage)
+
+        assertEquals(CommandHandlerResult.FORBIDDEN, result)
+        assertEquals(commandResult, command)
     }
 }
