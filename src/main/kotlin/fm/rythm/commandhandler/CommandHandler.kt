@@ -2,6 +2,7 @@ package fm.rythm.commandhandler
 
 import fm.rythm.commandhandler.textcommands.*
 import fm.rythm.commandhandler.textcommands.recursivelyFindCommandUsed
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
 
 enum class CommandHandlerResult {
@@ -29,7 +30,7 @@ enum class CommandHandlerResult {
 class CommandHandler(
     private val prefixes: ArrayList<String>,
     private val commands: ArrayList<TextCommand<*>>,
-    private val onError: (() -> Boolean)?
+    private val onError: ((message: Message, command: TextCommand<*>, error: Exception) -> Boolean)?
 ) {
 
     fun handleJdaMessage(message: Message): Pair<CommandHandlerResult, TextCommand<*>?> {
@@ -67,7 +68,10 @@ class CommandHandler(
             else
                 Pair(CommandHandlerResult.SUCCESS, commandUsed)
         } catch (e: Exception) {
-            val exceptionHandled = this.onError?.let { it() } ?: throw e
+            val exceptionHandled = this.onError?.let {
+                it(message, commandUsed, e)
+            }
+                ?: throw e
 
             if (!exceptionHandled)
                 throw e

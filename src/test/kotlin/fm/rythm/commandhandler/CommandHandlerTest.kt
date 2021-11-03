@@ -1,6 +1,7 @@
 package fm.rythm.commandhandler
 
 import fm.rythm.commandhandler.textcommands.*
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Message
 import org.junit.jupiter.api.*
 import org.junit.jupiter.params.ParameterizedTest
@@ -8,6 +9,7 @@ import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
+import java.lang.Exception
 import kotlin.test.assertEquals
 
 class TestModule(
@@ -206,7 +208,11 @@ internal class CommandHandlerTest {
             on { contentRaw } doReturn "=test"
         }
 
-        fun onError(): Boolean{
+        fun onError(
+            message: Message,
+            command: TextCommand<*>,
+            exception: Exception
+        ): Boolean {
             return false
         }
 
@@ -227,11 +233,17 @@ internal class CommandHandlerTest {
         val commands = arrayListOf<TextCommand<*>>(
             command
         )
+        val mockJda = mock<JDA> {}
         val mockMessage = mock<Message> {
             on { contentRaw } doReturn "=test"
+            on { jda } doReturn mockJda
         }
 
-        fun onError(): Boolean{
+        fun onError(
+            message: Message,
+            command: TextCommand<*>,
+            exception: Exception
+        ): Boolean {
             return true
         }
 
