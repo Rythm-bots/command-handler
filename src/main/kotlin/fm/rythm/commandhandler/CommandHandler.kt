@@ -1,7 +1,7 @@
 package fm.rythm.commandhandler
 
 import fm.rythm.commandhandler.textcommands.*
-import fm.rythm.commandhandler.utils.recursivelyFindCommandUsed
+import fm.rythm.commandhandler.textcommands.recursivelyFindCommandUsed
 import net.dv8tion.jda.api.entities.Message
 
 enum class CommandHandlerResult {
