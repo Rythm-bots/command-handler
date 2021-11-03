@@ -26,7 +26,7 @@ class UtilsTest {
             val command = mock<TextCommand<Unit>> {
                 on { getNames() } doReturn arrayListOf(commandName)
             }
-            val commandUsed = recursivelyFindCommandUsed(prefixLength, arrayListOf(command), commandContent)
+            val commandUsed = commandContent.recursivelyFindCommandUsed(prefixLength, arrayListOf(command))
 
             assertEquals(command, commandUsed)
         }
@@ -50,9 +50,9 @@ class UtilsTest {
             }
             val command = mock<TextCommand<Unit>> {
                 on { getNames() } doReturn arrayListOf(baseCommandName)
-                on { getRegistry() } doReturn arrayListOf(subCommand)
+                on { getSubcommandRegistry() } doReturn arrayListOf(subCommand)
             }
-            val commandUsed = recursivelyFindCommandUsed(prefixLength, arrayListOf(command), commandContent)
+            val commandUsed = commandContent.recursivelyFindCommandUsed(prefixLength, arrayListOf(command))
 
             assertEquals(subCommand, commandUsed)
         }

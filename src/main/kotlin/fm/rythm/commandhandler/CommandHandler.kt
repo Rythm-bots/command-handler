@@ -18,7 +18,12 @@ enum class CommandHandlerResult {
      */
     COMMAND_NOT_FOUND,
     INVALID_PARAMETERS,
-    EXECUTION_ERROR
+    EXECUTION_ERROR,
+
+    /**
+     * For when the command was valid, but the user wasn't permitted to use it.
+     */
+    FORBIDDEN
 }
 
 class CommandHandler(
@@ -35,10 +40,9 @@ class CommandHandler(
         if (!possibleCommand)
             return Pair(CommandHandlerResult.NOT_COMMAND, null)
 
-        val commandUsed = recursivelyFindCommandUsed(
+        val commandUsed = content.recursivelyFindCommandUsed(
             prefixUsed.length,
-            commands,
-            content
+            commands
         ) ?: return Pair(CommandHandlerResult.COMMAND_NOT_FOUND, null)
 
         val commandNameUsed = getCommandName(prefixUsed.length, content)
@@ -51,8 +55,12 @@ class CommandHandler(
         ) ?: return Pair(CommandHandlerResult.INVALID_PARAMETERS, null)
 
         return try {
-            commandUsed.execute(rawParameterValues, message)
-            Pair(CommandHandlerResult.SUCCESS, commandUsed)
+            val wasPermitted = commandUsed.execute(rawParameterValues, message)
+
+            if (!wasPermitted)
+                Pair(CommandHandlerResult.FORBIDDEN, commandUsed)
+            else
+                Pair(CommandHandlerResult.SUCCESS, commandUsed)
         } catch (e: Exception) {
             val exceptionHandled = this.onError?.let { it() } ?: throw e
 

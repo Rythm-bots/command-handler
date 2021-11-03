@@ -2,6 +2,7 @@ package fm.rythm.commandhandler
 
 import fm.rythm.commandhandler.textcommands.CommandContext
 import fm.rythm.commandhandler.textcommands.Parameter
+import fm.rythm.commandhandler.textcommands.ParameterType
 import fm.rythm.commandhandler.textcommands.TextCommand
 import net.dv8tion.jda.api.entities.Message
 import org.junit.jupiter.api.*
@@ -16,14 +17,19 @@ import kotlin.test.assertEquals
 class TestCommand(
     names: ArrayList<String>,
     parameters: LinkedHashMap<String, Parameter> = linkedMapOf(),
-    private val shouldError: Boolean = false
+    private val shouldError: Boolean = false,
+    private val permitted: Boolean = true
 ) : TextCommand<Unit>(names, parameters) {
+
+    override fun check(context: CommandContext<Unit>): Boolean {
+        return permitted
+    }
 
     override fun parameterFactory(parameters: HashMap<String, Any>) {
         return
     }
 
-    override fun onExecuted(parameters: CommandContext<Unit>) {
+    override fun onExecuted(context: CommandContext<Unit>) {
         if (shouldError)
             throw NullPointerException("Exception thrown for testing purposes.")
     }
@@ -36,6 +42,10 @@ class TestCommandWithParameters(
     parameters: LinkedHashMap<String, Parameter> = linkedMapOf()
 ) : TextCommand<TestCommandParameters>(names, parameters) {
 
+    override fun check(context: CommandContext<TestCommandParameters>): Boolean {
+        return true
+    }
+
     override fun parameterFactory(parameters: HashMap<String, Any>): TestCommandParameters {
         val number = parameters["number"]!! as Int
         val users = parameters["users"]!! as List<Long> // TODO: solve warning
@@ -44,7 +54,7 @@ class TestCommandWithParameters(
         return TestCommandParameters(number, users, text)
     }
 
-    override fun onExecuted(parameters: CommandContext<TestCommandParameters>) {
+    override fun onExecuted(context: CommandContext<TestCommandParameters>) {
 
     }
 }
@@ -236,7 +246,11 @@ internal class CommandHandlerTest {
     )
     fun testMultiParameters(firstParam: String, secondParam: String, thirdParam: String) {
         val prefixes = arrayListOf("=")
-        val command = TestCommandWithParameters(arrayListOf("test"), linkedMapOf())
+        val command = TestCommandWithParameters(arrayListOf("test"), linkedMapOf(
+            "number" to Parameter(ParameterType.INT),
+            "users" to Parameter(ParameterType.USER, allowMultiple = true),
+            "text" to Parameter(ParameterType.TEXT),
+        ))
         val commands = arrayListOf<TextCommand<*>>(
             command
         )
@@ -247,7 +261,28 @@ internal class CommandHandlerTest {
         val commandHandler = CommandHandler(prefixes, commands, null)
 
         assertDoesNotThrow {
-            commandHandler.handleJdaMessage(mockMessage)
+            val result = commandHandler.handleJdaMessage(mockMessage)
+            assertEquals(Pair(CommandHandlerResult.SUCCESS, command), result)
+        }
+    }
+
+    @DisplayName("Forbidden command execution")
+    @Test
+    fun testForbidden() {
+        val prefixes = arrayListOf("=")
+        val command = TestCommand(arrayListOf("test"), linkedMapOf(), permitted = false)
+        val commands = arrayListOf<TextCommand<*>>(
+            command
+        )
+        val mockMessage = mock<Message> {
+            on { contentRaw } doReturn "=test"
+        }
+
+        val commandHandler = CommandHandler(prefixes, commands, null)
+
+        assertDoesNotThrow {
+            val result = commandHandler.handleJdaMessage(mockMessage)
+            assertEquals(Pair(CommandHandlerResult.FORBIDDEN, command), result)
         }
     }
 }

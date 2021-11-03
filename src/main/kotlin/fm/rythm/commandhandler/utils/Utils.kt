@@ -11,18 +11,17 @@ import fm.rythm.commandhandler.textcommands.getRawParameters
  *
  * @return The command if found, else null.
  */
-fun recursivelyFindCommandUsed(
+fun String.recursivelyFindCommandUsed(
     prefixLength: Int,
-    commands: ArrayList<TextCommand<*>>,
-    content: String
+    commands: ArrayList<TextCommand<*>>
 ): TextCommand<*>? {
-    val commandName = getCommandName(prefixLength, content)
+    val commandName = getCommandName(prefixLength, this)
     val foundCommand = getCommand(commands, commandName) ?: return null
 
-    if (foundCommand.getRegistry().size == 0)
+    if (foundCommand.getSubcommandRegistry().size == 0)
         return foundCommand
 
-    val rawParameters = getRawParameters(prefixLength, commandName, content)
+    val rawParameters = getRawParameters(prefixLength, commandName, this)
 
-    return recursivelyFindCommandUsed(0, foundCommand.getRegistry(), rawParameters) ?: foundCommand
+    return rawParameters.recursivelyFindCommandUsed(0, foundCommand.getSubcommandRegistry()) ?: foundCommand
 }
