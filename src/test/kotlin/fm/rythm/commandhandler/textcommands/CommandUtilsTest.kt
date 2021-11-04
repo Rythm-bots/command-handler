@@ -58,12 +58,12 @@ internal class CommandUtilsTest {
         @DisplayName("Ensure subcommands are found.")
         @ParameterizedTest(name = "Using prefix length {0}, subcommand ''{2}'' should be found in ''{3}''")
         @CsvSource(
-            "1,command,subcommand,=command subcommand,=command",
-            "2,command,subcommand,>>command subcommand,>>command",
-            "3,command,subcommand,-->command subcommand,-->command",
-            "3,command,subcommand,-->command          subcommand,-->command",
-            "1,command,subcommand,=command subcommand 132819036282159104,=command",
-            "1,command,subcommand,=command subcommand       132819036282159104,=command",
+            "1,command,subcommand,=command subcommand,'=command '",
+            "2,command,subcommand,>>command subcommand,'>>command '",
+            "3,command,subcommand,-->command subcommand,'-->command '",
+            "3,command,subcommand,-->command          subcommand,'-->command          '",
+            "1,command,subcommand,=command subcommand 132819036282159104,'=command '",
+            "1,command,subcommand,=command subcommand       132819036282159104,'=command '",
         )
         fun testSubcommands(
             prefixLength: Int,

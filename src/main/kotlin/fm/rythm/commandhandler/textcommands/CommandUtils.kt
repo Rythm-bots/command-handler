@@ -37,5 +37,5 @@ fun String.recursivelyFindCommandUsed(
         .recursivelyFindCommandUsed(0, foundCommand.getSubcommandRegistry())
         ?: return Pair(prefixLength + nWhitespace + commandName.length, foundCommand)
 
-    return Pair(lengthResult + commandName.length + prefixLength, commandResult)
+    return Pair(lengthResult + commandName.length + nWhitespace + prefixLength, commandResult)
 }
