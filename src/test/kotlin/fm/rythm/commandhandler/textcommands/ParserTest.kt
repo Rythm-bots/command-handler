@@ -111,7 +111,7 @@ internal class ParserTest {
             expectedRawParameters: String
         ) {
             val rawParametersRetrieved = getRawParameters(prefix.length, commandName, messageContent)
-            assertEquals(expectedRawParameters, rawParametersRetrieved)
+            assertEquals(expectedRawParameters, rawParametersRetrieved.trim())
         }
     }
 

@@ -278,10 +278,11 @@ internal class CommandHandlerTest {
 
         val commandHandler = CommandHandler(prefixes, commands, null)
 
+        var result: Pair<CommandHandlerResult, TextCommand<*>?>? = null
         assertDoesNotThrow {
-            val result = commandHandler.handleJdaMessage(mockMessage)
-            assertEquals(Pair(CommandHandlerResult.SUCCESS, command), result)
+            result = commandHandler.handleJdaMessage(mockMessage)
         }
+        assertEquals(Pair(CommandHandlerResult.SUCCESS, command), result)
     }
 
     @DisplayName("Forbidden command execution")

@@ -1,6 +1,7 @@
 package fm.rythm.commandhandler.textcommands
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.params.ParameterizedTest
@@ -47,24 +48,29 @@ internal class CommandUtilsTest {
             val command = mock<TextCommand<Unit>> {
                 on { getNames() } doReturn arrayListOf(commandName)
             }
-            val commandUsed = commandContent.recursivelyFindCommandUsed(prefixLength, arrayListOf(command))
+            val (commandUsedLength, commandUsed) = commandContent.recursivelyFindCommandUsed(prefixLength, arrayListOf(command))
+                ?: fail("recursivelyFindCommandUsed returned null")
 
-            kotlin.test.assertEquals(command, commandUsed)
+            assertEquals(command, commandUsed)
+            assertEquals(prefixLength, commandUsedLength)
         }
 
         @DisplayName("Ensure subcommands are found.")
         @ParameterizedTest(name = "Using prefix length {0}, subcommand ''{2}'' should be found in ''{3}''")
         @CsvSource(
-            "1,command,subcommand,=command subcommand",
-            "2,command,subcommand,>>command subcommand",
-            "3,command,subcommand,-->command subcommand",
-            "1,command,subcommand,=command subcommand 132819036282159104"
+            "1,command,subcommand,=command subcommand,=command",
+            "2,command,subcommand,>>command subcommand,>>command",
+            "3,command,subcommand,-->command subcommand,-->command",
+            "3,command,subcommand,-->command          subcommand,-->command",
+            "1,command,subcommand,=command subcommand 132819036282159104,=command",
+            "1,command,subcommand,=command subcommand       132819036282159104,=command",
         )
         fun testSubcommands(
             prefixLength: Int,
             baseCommandName: String,
             subCommandName: String,
-            commandContent: String
+            commandContent: String,
+            baseCommand: String
         ) {
             val subCommand = mock<TextCommand<Unit>> {
                 on { getNames() } doReturn arrayListOf(subCommandName)
@@ -73,9 +79,37 @@ internal class CommandUtilsTest {
                 on { getNames() } doReturn arrayListOf(baseCommandName)
                 on { getSubcommandRegistry() } doReturn arrayListOf(subCommand)
             }
-            val commandUsed = commandContent.recursivelyFindCommandUsed(prefixLength, arrayListOf(command))
+            val (commandUsedLength, commandUsed) = commandContent.recursivelyFindCommandUsed(prefixLength, arrayListOf(command))
+                ?: fail("recursivelyFindCommandUsed returned null")
 
-            kotlin.test.assertEquals(subCommand, commandUsed)
+            assertEquals(subCommand, commandUsed)
+            assertEquals(baseCommand.length, commandUsedLength)
+        }
+
+        @DisplayName("Ensure subcommand parameters are found.")
+        @ParameterizedTest(
+            name = "''{4}'' should be found on ''{3}''"
+        )
+        @CsvSource(
+            "1,command,subcommand,=command subcommand 132819036282159104,132819036282159104",
+            "1,command,subcommand,=command subcommand       132819036282159104,132819036282159104",
+            "1,command,subcommand,=command subcommand       123,123",
+        )
+        fun testSubcommandParameterResolution(
+            prefixLength: Int,
+            baseCommandName: String,
+            subCommandName: String,
+            commandContent: String,
+            expectedParameter: String
+        ) {
+            val parameters = getRawParameters(
+                prefixLength
+                    + baseCommandName.length
+                        + " ".length,
+                subCommandName,
+                commandContent
+            ).trim()
+            assertEquals(expectedParameter, parameters)
         }
     }
 }

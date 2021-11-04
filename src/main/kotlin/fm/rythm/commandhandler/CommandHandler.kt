@@ -41,13 +41,13 @@ class CommandHandler(
         if (!possibleCommand)
             return Pair(CommandHandlerResult.NOT_COMMAND, null)
 
-        val commandUsed = content.recursivelyFindCommandUsed(
+        val (commandUsedLength, commandUsed) = content.recursivelyFindCommandUsed(
             prefixUsed.length,
             commands
         ) ?: return Pair(CommandHandlerResult.COMMAND_NOT_FOUND, null)
 
-        val commandNameUsed = getCommandName(prefixUsed.length, content)
-        val rawParameterString = getRawParameters(prefixUsed.length, commandNameUsed, content)
+        val commandNameUsed = getCommandName(commandUsedLength, content)
+        val rawParameterString = getRawParameters(commandUsedLength, commandNameUsed, content).trim()
         val parametersRegex = compileParameterRegex(commandUsed.getParameters())
         val rawParameterValues = extractParameters(
             rawParameterString,

@@ -22,14 +22,20 @@ fun moduleContextFactory(command: TextCommand<*>, message: Message): ModuleConte
 fun String.recursivelyFindCommandUsed(
     prefixLength: Int,
     commands: ArrayList<TextCommand<*>>
-): TextCommand<*>? {
+): Pair<Int, TextCommand<*>>? {
     val commandName = getCommandName(prefixLength, this)
     val foundCommand = getCommand(commands, commandName) ?: return null
 
     if (foundCommand.getSubcommandRegistry().size == 0)
-        return foundCommand
+        return Pair(prefixLength, foundCommand)
 
     val rawParameters = getRawParameters(prefixLength, commandName, this)
+    val nWhitespace = rawParameters.takeWhile { it == ' ' }.length
 
-    return rawParameters.recursivelyFindCommandUsed(0, foundCommand.getSubcommandRegistry()) ?: foundCommand
+    val (lengthResult, commandResult) = rawParameters
+        .trim()
+        .recursivelyFindCommandUsed(0, foundCommand.getSubcommandRegistry())
+        ?: return Pair(prefixLength + nWhitespace + commandName.length, foundCommand)
+
+    return Pair(lengthResult + commandName.length + prefixLength, commandResult)
 }

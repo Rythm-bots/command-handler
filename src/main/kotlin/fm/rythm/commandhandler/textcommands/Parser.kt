@@ -46,7 +46,6 @@ fun getCommandName(prefixLength: Int, content: String): String {
 fun getRawParameters(prefixLength: Int, commandName: String, content: String): String {
     return content
         .removeRange(0, prefixLength + commandName.length)
-        .trim()
 }
 
 /**
